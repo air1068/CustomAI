@@ -15,12 +15,13 @@ using UnityEngine.UI;
 using YKF;
 using static UICurrency;
 using static UnityEngine.EventSystems.EventTrigger;
+using System.Net.NetworkInformation;
 
 namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.0";
+        internal const string Version = "0.1.1";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -111,7 +112,7 @@ namespace CustomAI {
     public class CustomUITab : YKLayout<Chara> {
         YKGrid instructionsGrid;
         Chara c;
-        List<string> actions = new List<string>() { "Attack (Melee)", "Attack (Ranged)", "Move (Away)", "Move (Towards)", "And", "Do Nothing" };
+        List<string> actions = new List<string>() { "Attack (Melee)", "Attack (Ranged)", "Attack (Thrown)", "Move (Away)", "Move (Towards)", "And", "Do Nothing" };
 
         void BuildMenu() {
             List<Instruction> instructions = c.GetObj<List<Instruction>>(ModInfo.MagicNumber);
@@ -237,6 +238,13 @@ namespace CustomAI {
                         owner.UseAbility(ACT.Melee, tc);
                     } else if (i.action == "Attack (Ranged)") {
                         owner.UseAbility(ACT.Ranged, tc);
+                    } else if (i.action == "Attack (Thrown)") {
+                        if (owner.Dist(tc) <= owner.GetSightRadius()) {
+                            Thing throwingweapon = owner.TryGetThrowable();
+                            if (throwingweapon != null && ACT.Throw.CanPerform(owner, tc, tc.pos)) {
+                                ActThrow.Throw(owner, tc.pos, tc, throwingweapon.HasElement(410) ? throwingweapon : throwingweapon.Split(1));
+                            }
+                        }
                     } else if (i.action == "Move (Towards)") {
                         if (owner.isBlind) {
                             owner.MoveRandom();
@@ -296,7 +304,7 @@ namespace CustomAI {
                     Msg.Say("Invalid move target.");
                     return false;
                 }
-                if (action != "Attack (Melee)" && action != "Attack (Ranged)" && action != "Move (Away)" && action != "Move (Towards)" && action != "And" && action != "Do Nothing") {
+                if (action != "Attack (Melee)" && action != "Attack (Ranged)" && action != "Attack (Thrown)" && action != "Move (Away)" && action != "Move (Towards)" && action != "And" && action != "Do Nothing") {
                     if (!owner.ability.list.items.Any(i => i.act.Name == action)) {
                         Msg.Say("Action not available: " + action);
                         return false;
