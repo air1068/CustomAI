@@ -16,6 +16,10 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 * Add an import/export system.
 * Open the editor interface via dialogue option instead of middle-clicking.
 
+## Changelog
+* v0.1.0: Initial public release.
+* v0.1.1: Added support for throwing weapons.
+
 ## Other Notes
 * I don't intend to recreate AnnaBannana's ability teaching system. That should be a separate Elin mod.
 * This mod won't change vanilla game mechanics. For example, pets with the Blind status still move in a random direction, and pets with the Fear status still won't move into melee range of their target.
