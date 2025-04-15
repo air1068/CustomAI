@@ -8,7 +8,7 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 * "-" deletes an instruction from the list, and "+" adds a new one. If you delete all instructions, the pet will go back to the vanilla combat AI.
 * HP, MP, and SP can use a specific number or a percentage. For example, you can check if a pet has at least 10 MP, or if they're below 50% HP.
 * Summons uses a specific number, but as a special case it can also use "100%" to mean the entity's summon cap.
-* Status uses the alias of a condition, but name and name_JP will also work. (A list of aliases can be found here: https://docs.google.com/spreadsheets/d/16-LkHtVqjuN9U0rripjBn-nYwyqqSGg_/edit?gid=2127729747#gid=2127729747 ) In addition, Status can use "Spiky" and "Suicide Bomb" to check for the presence of the Spiky feat and the Suicide Bomb special action, respectively.
+* Status uses the alias of a condition, but name and name_JP will also work. (A list of aliases can be found here: https://docs.google.com/spreadsheets/d/16-LkHtVqjuN9U0rripjBn-nYwyqqSGg_/edit?gid=2127729747#gid=2127729747 ) In addition, Status can use "Spiky" and "SuicideBomb" to check for the presence of the Spiky feat and the Suicide Bomb special action, respectively.
 
 ## Planned Future Updates
 * Add the "Ally" entity.
@@ -19,6 +19,7 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 ## Changelog
 * v0.1.0: Initial public release.
 * v0.1.1: Added support for throwing weapons.
+* v0.1.2: Changed "Suicide Bomb" to "SuicideBomb" since apparently YK Framework doesn't support spaces.
 
 ## Other Notes
 * I don't intend to recreate AnnaBannana's ability teaching system. That should be a separate Elin mod.
