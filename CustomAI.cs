@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.1";
+        internal const string Version = "0.1.2";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -187,7 +187,7 @@ namespace CustomAI {
                 owner.enemy = null;
                 yield return Success();
             }
-            if (owner.enemy.isDead || !owner.enemy.ExistsOnMap || !owner.enemy.pos.IsInBounds) {
+            if (owner.enemy == null || owner.enemy.isDead || !owner.enemy.ExistsOnMap || !owner.enemy.pos.IsInBounds || !owner.CanSee(owner.enemy)) {
                 owner.FindNewEnemy();
                 if (owner.enemy == null) {
                     yield return Success();
@@ -343,7 +343,7 @@ namespace CustomAI {
                         Msg.Say("Status comparison can only be \"=\" or \"!=\".");
                         return false;
                     }
-                    if (testvalue != "Spiky" && testvalue != "Suicide Bomb" && !EClass.sources.stats.alias.ContainsKey(testvalue)) {
+                    if (testvalue != "Spiky" && testvalue != "SuicideBomb" && !EClass.sources.stats.alias.ContainsKey(testvalue)) {
                         foreach (var row in EClass.sources.stats.rows) {
                             if (row.name == testvalue || row.name_JP == testvalue) {
                                 testvalue = row.alias;
@@ -399,7 +399,7 @@ namespace CustomAI {
                             break;
                         }
                     }
-                } else if (testvalue == "Suicide Bomb") {
+                } else if (testvalue == "SuicideBomb") {
                     foreach (Element e in tc.elements.ListElements()) {
                         if (e.id == 6410) { //ActSuicide
                             left = 1;
