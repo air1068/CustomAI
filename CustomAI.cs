@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.2";
+        internal const string Version = "0.1.3";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -392,20 +392,10 @@ namespace CustomAI {
                     right = int.Parse(testvalue);
                 }
             } else if (condition == AI.STATUS) {
-                if (testvalue == "Spiky") {
-                    foreach (Element e in tc.elements.ListElements()) {
-                        if (e.id == 1221) { //featSpike
-                            left = 1;
-                            break;
-                        }
-                    }
-                } else if (testvalue == "SuicideBomb") {
-                    foreach (Element e in tc.elements.ListElements()) {
-                        if (e.id == 6410) { //ActSuicide
-                            left = 1;
-                            break;
-                        }
-                    }
+                if (testvalue == "Spiky" && tc.HasElement(1221)) { //featSpike
+                    left = 1;
+                } else if (testvalue == "SuicideBomb" && tc.ability.list.items.Any(i => i.act.Name == "Suicide Bomb")) {
+                    left = 1;
                 } else {
                     foreach (Condition cond in tc.conditions) {
                         if (cond.id == EClass.sources.stats.alias[testvalue].id) {
