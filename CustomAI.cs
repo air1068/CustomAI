@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.3";
+        internal const string Version = "0.1.4";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -187,22 +187,26 @@ namespace CustomAI {
                 owner.enemy = null;
                 yield return Success();
             }
-            if (owner.enemy == null || owner.enemy.isDead || !owner.enemy.ExistsOnMap || !owner.enemy.pos.IsInBounds || !owner.CanSee(owner.enemy)) {
+            tc = owner.enemy;
+            if (tc == null || tc.isDead || !tc.ExistsOnMap || !tc.pos.IsInBounds || !owner.CanSee(tc)) {
                 owner.FindNewEnemy();
                 if (owner.enemy == null) {
                     yield return Success();
                 }
+                tc = owner.enemy;
             }
-            if (owner.enemy.IsPCFaction && EClass.rnd(5) == 0) {
-                owner.enemy = null;
-                if (owner.enemy.enemy == owner) {
-                    owner.enemy.enemy = null;
-                    owner.enemy.enemy.hostility = owner.enemy.enemy.OriginalHostility;
+            if (tc.IsPCFaction && EClass.rnd(5) == 0) {
+                if (tc.enemy == owner) {
+                    tc.enemy = null;
+                    tc.hostility = tc.OriginalHostility;
                 }
+                owner.enemy = null;
                 owner.Say("calmdown", owner);
                 yield return Success();
             }
-            owner.enemy.enemy?.TrySetEnemy(owner);
+            if (tc.enemy != null) {
+                tc.TrySetEnemy(owner);
+            }
             if (EClass.rnd(20) == 0 && owner.isRestrained) {
                 owner.Talk("restrained");
             }
@@ -226,43 +230,43 @@ namespace CustomAI {
                     andqueue.Clear();
                 }
                 if (i.IsValid(owner)) {
-                    Chara tc = owner.enemy;
+                    Chara target = tc;
                     if (i.PreserveEntityAsTarget) {
                         if (i.entity == AI.SELF) {
-                            tc = owner;
+                            target = owner;
                         } else if (i.entity == AI.PLAYER) {
-                            tc = EClass.pc;
+                            target = EClass.pc;
                         }
                     }
                     if (i.action == "Attack (Melee)") {
-                        owner.UseAbility(ACT.Melee, tc);
+                        owner.UseAbility(ACT.Melee, target);
                     } else if (i.action == "Attack (Ranged)") {
-                        owner.UseAbility(ACT.Ranged, tc);
+                        owner.UseAbility(ACT.Ranged, target);
                     } else if (i.action == "Attack (Thrown)") {
-                        if (owner.Dist(tc) <= owner.GetSightRadius()) {
+                        if (owner.Dist(target) <= owner.GetSightRadius()) {
                             Thing throwingweapon = owner.TryGetThrowable();
-                            if (throwingweapon != null && ACT.Throw.CanPerform(owner, tc, tc.pos)) {
-                                ActThrow.Throw(owner, tc.pos, tc, throwingweapon.HasElement(410) ? throwingweapon : throwingweapon.Split(1));
+                            if (throwingweapon != null && ACT.Throw.CanPerform(owner, target, target.pos)) {
+                                ActThrow.Throw(owner, target.pos, target, throwingweapon.HasElement(410) ? throwingweapon : throwingweapon.Split(1));
                             }
                         }
                     } else if (i.action == "Move (Towards)") {
                         if (owner.isBlind) {
                             owner.MoveRandom();
                         } else {
-                            if (!owner.HasCondition<ConFear>() || owner.Dist(tc) > 2) {
-                                owner.TryMoveTowards(tc.pos);
+                            if (!owner.HasCondition<ConFear>() || owner.Dist(target) > 2 || target == EClass.pc) {
+                                owner.TryMoveTowards(target.pos);
                             }
                         }
                     } else if (i.action == "Move (Away)") {
                         if (owner.isBlind) {
                             owner.MoveRandom();
                         } else {
-                            owner.TryMoveFrom(tc.pos);
+                            owner.TryMoveFrom(target.pos);
                         }
                     } else if (i.action == "Do Nothing") {
                         owner.UseAbility(ACT.Wait);
                     } else {
-                        owner.UseAbility(owner.ability.list.items.First(item => item.act.Name == i.action).act, tc);
+                        owner.UseAbility(owner.ability.list.items.First(item => item.act.Name == i.action).act, target);
                     }
                     yield return Success();
                 }
@@ -290,6 +294,10 @@ namespace CustomAI {
             testvalue = "1";
             action = "Move (Towards)";
             PreserveEntityAsTarget = false;
+        }
+
+        public override string ToString() {
+            return entity.ToString() + "," + condition.ToString() + "," + comparison.ToString() + "," + testvalue + "," + action + "," + PreserveEntityAsTarget.ToString();
         }
 
         public bool IsValid(Chara owner) {
@@ -392,10 +400,14 @@ namespace CustomAI {
                     right = int.Parse(testvalue);
                 }
             } else if (condition == AI.STATUS) {
-                if (testvalue == "Spiky" && tc.HasElement(1221)) { //featSpike
-                    left = 1;
-                } else if (testvalue == "SuicideBomb" && tc.ability.list.items.Any(i => i.act.Name == "Suicide Bomb")) {
-                    left = 1;
+                if (testvalue == "Spiky") {
+                    if (tc.HasElement(1221)) { //featSpike
+                        left = 1;
+                    }
+                } else if (testvalue == "SuicideBomb") {
+                    if (tc.ability.list.items.Any(i => i.act.Name == "Suicide Bomb")) {
+                        left = 1;
+                    }
                 } else {
                     foreach (Condition cond in tc.conditions) {
                         if (cond.id == EClass.sources.stats.alias[testvalue].id) {
