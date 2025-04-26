@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.4";
+        internal const string Version = "0.1.5";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -351,7 +351,7 @@ namespace CustomAI {
                         Msg.Say("Status comparison can only be \"=\" or \"!=\".");
                         return false;
                     }
-                    if (testvalue != "Spiky" && testvalue != "SuicideBomb" && !EClass.sources.stats.alias.ContainsKey(testvalue)) {
+                    if (testvalue != "Spiky" && testvalue != "SuicideBomb" && testvalue != "Haste" && testvalue != "Slow" && !EClass.sources.stats.alias.ContainsKey(testvalue)) {
                         foreach (var row in EClass.sources.stats.rows) {
                             if (row.name == testvalue || row.name_JP == testvalue) {
                                 testvalue = row.alias;
@@ -410,7 +410,12 @@ namespace CustomAI {
                     }
                 } else {
                     foreach (Condition cond in tc.conditions) {
-                        if (cond.id == EClass.sources.stats.alias[testvalue].id) {
+                        if (testvalue == "Haste" || testvalue == "Slow") {
+                            if (cond.id == 34 && cond.GetText() == testvalue) { //ConBuffStats
+                                left = 1;
+                                break;
+                            }
+                        } else if (cond.id == EClass.sources.stats.alias[testvalue].id) {
                             left = 1;
                             break;
                         }
