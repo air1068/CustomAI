@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.5";
+        internal const string Version = "0.1.6";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -411,9 +411,14 @@ namespace CustomAI {
                 } else {
                     foreach (Condition cond in tc.conditions) {
                         if (testvalue == "Haste" || testvalue == "Slow") {
-                            if (cond.id == 34 && cond.GetText() == testvalue) { //ConBuffStats
-                                left = 1;
-                                break;
+                            if (cond.id == 34) { //ConBuffStats
+                                if (cond.refVal2 == 222 && testvalue == "Slow") { //isDebuff
+                                    left = 1;
+                                    break;
+                                } else if (cond.refVal2 != 222 && testvalue == "Haste") {
+                                    left = 1;
+                                    break;
+                                }
                             }
                         } else if (cond.id == EClass.sources.stats.alias[testvalue].id) {
                             left = 1;
