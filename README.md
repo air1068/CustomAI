@@ -23,6 +23,7 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 * v0.1.3: Improved checking for Spiky/Suicide Bomb.
 * v0.1.4: Fixed checking for Spiky/Suicide Bomb.
 * v0.1.5: Added support for "Haste" and "Slow".
+* v0.1.6: Improved support for "Haste" and "Slow".
 
 ## Other Notes
 * I don't intend to recreate AnnaBannana's ability teaching system. That should be a separate Elin mod.
