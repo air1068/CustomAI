@@ -12,7 +12,6 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 * Status uses the alias of a condition, but name and name_JP will also work. (A list of aliases can be found here: https://docs.google.com/spreadsheets/d/16-LkHtVqjuN9U0rripjBn-nYwyqqSGg_/edit?gid=2127729747#gid=2127729747 ) In addition, Status can use "Spiky" and "SuicideBomb" to check for the presence of the Spiky feat and the Suicide Bomb special action, respectively.
 
 ## Planned Future Updates
-* Fix checking for "100%" with Summons, since it's currently bugged.
 * Add a "Random" condition, based on the "Percent Chance" condition added to Custom-GX by JianmengYu.
 * Add an import/export system.
 * Open the editor interface via dialogue option instead of middle-clicking.
