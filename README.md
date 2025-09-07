@@ -25,6 +25,7 @@ Based on AnnaBannana's classic system, CustomAI allows you to create custom comb
 * v0.1.5: Added support for "Haste" and "Slow".
 * v0.1.6: Improved support for "Haste" and "Slow".
 * v0.1.7: Added "Ally" entity. Also added buttons for rearranging instructions.
+* v0.1.8: Fixed using "100%" with the Summons condition.
 
 ## Other Notes
 * I don't intend to recreate AnnaBannana's ability teaching system. That should be a separate Elin mod.
