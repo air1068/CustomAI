@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.6";
+        internal const string Version = "0.1.7";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -32,6 +32,7 @@ namespace CustomAI {
         internal const int TARGET = 1;
         internal const int PLAYER = 2;
         internal const int SELF = 3;
+        internal const int ALLY = 4;
 
         internal const int HP = 1;
         internal const int MP = 2;
@@ -119,7 +120,7 @@ namespace CustomAI {
             instructionsGrid.Clear();
             for (int i = 0; i < instructions.Count; i++) {
                 int tmp = i;
-                instructionsGrid.Dropdown(new List<string> { "Target", "Player", "Self" }, (index) => {
+                instructionsGrid.Dropdown(new List<string> { "Target", "Player", "Self", "Ally" }, (index) => {
                     instructions[tmp].entity = index+1;
                     instructions[tmp].validated = false;
                 }, instructions[tmp].entity-1);
@@ -130,7 +131,7 @@ namespace CustomAI {
                 instructionsGrid.Dropdown(new List<string> { "=", "!=", ">", "<", ">=", "<=" }, (index) => {
                     instructions[tmp].comparison = index+1;
                     instructions[tmp].validated = false;
-                }, instructions[i].comparison-1);
+                }, instructions[tmp].comparison-1);
                 instructions[tmp].input = instructionsGrid.InputText(instructions[tmp].testvalue, (uselessint) => {
                     //the UIInputText is stored in the Instruction itself so that its Text can be accessed here
                     instructions[tmp].testvalue = instructions[tmp].input.Text;
@@ -144,7 +145,26 @@ namespace CustomAI {
                     instructions[tmp].PreserveEntityAsTarget = setting;
                     instructions[tmp].validated = false;
                 });
-                instructionsGrid.Button("-", () => {
+                YKGrid buttonsGrid = instructionsGrid.Grid();
+                buttonsGrid.Layout.constraintCount = 3;
+                buttonsGrid.Layout.cellSize = new Vector2(50f, 30f);
+                if (i > 0) {
+                    buttonsGrid.Button("▲", () => {
+                        (instructions[tmp-1], instructions[tmp]) = (instructions[tmp], instructions[tmp-1]);
+                        BuildMenu();
+                    });
+                } else {
+                    buttonsGrid.Text("");
+                }
+                if (i < instructions.Count - 1) {
+                    buttonsGrid.Button("▼", () => {
+                        (instructions[tmp+1], instructions[tmp]) = (instructions[tmp], instructions[tmp+1]);
+                        BuildMenu();
+                    });
+                } else {
+                    buttonsGrid.Text("");
+                }
+                buttonsGrid.Button("-", () => {
                     instructions.RemoveAt(tmp);
                     if (instructions.Count > 0) {
                         BuildMenu();
@@ -236,6 +256,8 @@ namespace CustomAI {
                             target = owner;
                         } else if (i.entity == AI.PLAYER) {
                             target = EClass.pc;
+                        } else if (i.entity == AI.ALLY) {
+                            target = i.GetAlly(owner);
                         }
                     }
                     if (i.action == "Attack (Melee)") {
@@ -300,12 +322,21 @@ namespace CustomAI {
             return entity.ToString() + "," + condition.ToString() + "," + comparison.ToString() + "," + testvalue + "," + action + "," + PreserveEntityAsTarget.ToString();
         }
 
-        public bool IsValid(Chara owner) {
-            Chara tc = owner.enemy;
-            if (entity == AI.SELF) {
-                tc = owner;
-            } else if (entity == AI.PLAYER) {
-                tc = EClass.pc;
+        public bool IsValid(Chara owner, Chara target = null) {
+            Chara tc = target;
+            if (tc == null) {
+                if (entity == AI.ALLY) {
+                    foreach (Chara ally in EClass.pc.party.members) {
+                        if (this.IsValid(owner, ally)) { return true; }
+                    }
+                    return false;
+                } else if (entity == AI.SELF) {
+                    tc = owner;
+                } else if (entity == AI.PLAYER) {
+                    tc = EClass.pc;
+                } else {
+                    tc = owner.enemy;
+                }
             }
             if (!this.validated) {
                 if (entity == AI.SELF && PreserveEntityAsTarget && (action == "Move (Away)" || action == "Move (Towards)")) {
@@ -365,6 +396,9 @@ namespace CustomAI {
                     }
                 }
                 this.validated = true;
+            }
+            if (tc == owner && PreserveEntityAsTarget && (action == "Move (Away)" || action == "Move (Towards)")) {
+                return false; //in case "Ally" selects the pet (validation only checks for "Self")
             }
             int left = 0;
             float right = 0f;
@@ -461,6 +495,13 @@ namespace CustomAI {
                     break;
             }
             return true;
+        }
+        public Chara GetAlly(Chara owner) {
+            foreach (Chara ally in EClass.pc.party.members) {
+                if (this.IsValid(owner, ally)) { return ally; }
+            }
+            Msg.Say("ERROR: A valid ally was found before but is now inexplicably gone.");
+            return owner;
         }
     }
 }
