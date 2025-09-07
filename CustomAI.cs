@@ -21,7 +21,7 @@ namespace CustomAI {
     internal static class ModInfo {
         internal const string Guid = "air1068.elin.customai";
         internal const string Name = "CustomAI";
-        internal const string Version = "0.1.7";
+        internal const string Version = "0.1.8";
         internal const int MagicNumber = (int)(3416877565 % int.MaxValue);
         //using my last mod's Steam Workshop file ID for a reasonably unique value
         //(mods don't get a file ID until they're published, so I'm using the previous one instead)
@@ -358,8 +358,7 @@ namespace CustomAI {
                             }
                         }
                     }
-                }
-                else if (condition == AI.DISTANCE) {
+                } else if (condition == AI.DISTANCE) {
                     if (!int.TryParse(testvalue, out _)) {
                         Msg.Say("Invalid number: " + testvalue);
                         return false;
@@ -367,17 +366,15 @@ namespace CustomAI {
                         Msg.Say("Distance too low: " + testvalue);
                         return false;
                     }
-                }
-                else if (condition == AI.SUMMONS) {
-                    if (!int.TryParse(testvalue, out _) && testvalue != "100%") {
+                } else if (condition == AI.SUMMONS) {
+                    if (testvalue != "100%" && !int.TryParse(testvalue, out _)) {
                         Msg.Say("Invalid number: " + testvalue);
                         return false;
-                    } else if (int.Parse(testvalue) < 0) {
+                    } else if (testvalue != "100%" && int.Parse(testvalue) < 0) {
                         Msg.Say("Summon count too low: " + testvalue);
                         return false;
                     }
-                }
-                else if (condition == AI.STATUS) {
+                } else if (condition == AI.STATUS) {
                     if (comparison != AI.EQUALS && comparison != AI.DOES_NOT_EQUAL) {
                         Msg.Say("Status comparison can only be \"=\" or \"!=\".");
                         return false;
